@@ -1,5 +1,25 @@
 document.addEventListener("DOMContentLoaded", function () {
 
+    const API_BASE = (() => {
+
+        const configuredBase =
+            window.MEATSHOP_API_URL || "";
+
+        if (configuredBase) {
+            return configuredBase.replace(/\/$/, "");
+        }
+
+        if (
+            window.location.hostname === "localhost" ||
+            window.location.hostname === "127.0.0.1"
+        ) {
+            return "http://localhost:5000";
+        }
+
+        return "";
+
+    })();
+
     const cart =
         JSON.parse(localStorage.getItem("meatShopCart")) || [];
 
@@ -332,23 +352,25 @@ document.addEventListener("DOMContentLoaded", function () {
 
             try {
 
+                const orderApiUrl =
+                    API_BASE
+                        ? `${API_BASE}/api/orders`
+                        : "/api/orders";
+
                 const response =
-                    await fetch(
-                        "http://localhost:5000/api/orders",
-                        {
-                            method: "POST",
+                    await fetch(orderApiUrl, {
+                        method: "POST",
 
-                            headers: {
-                                "Content-Type":
-                                    "application/json"
-                            },
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
 
-                            body:
-                                JSON.stringify(
-                                    orderData
-                                )
-                        }
-                    );
+                        body:
+                            JSON.stringify(
+                                orderData
+                            )
+                    });
 
 
                 const result =

@@ -1,7 +1,27 @@
 document.addEventListener("DOMContentLoaded", function () {
 
-    const API_URL = "http://localhost:5000/api/orders";
-    const PRODUCTS_API_URL = "http://localhost:5000/api/products";
+    const API_BASE = (() => {
+
+        const configuredBase =
+            window.MEATSHOP_API_URL || "";
+
+        if (configuredBase) {
+            return configuredBase.replace(/\/$/, "");
+        }
+
+        if (
+            window.location.hostname === "localhost" ||
+            window.location.hostname === "127.0.0.1"
+        ) {
+            return "http://localhost:5000";
+        }
+
+        return "";
+
+    })();
+
+    const API_URL = API_BASE ? `${API_BASE}/api/orders` : "/api/orders";
+    const PRODUCTS_API_URL = API_BASE ? `${API_BASE}/api/products` : "/api/products";
 
     const ordersTableBody =
         document.getElementById("orders-table-body");
