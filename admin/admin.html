@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Meat Shop - Owner Dashboard</title>
+
+    <link rel="stylesheet" href="admin.css">
+
+</head>
+
+<body>
+
+
+    <!-- =========================
+         SIDEBAR
+    ========================== -->
+
+    <aside class="sidebar">
+
+        <div class="admin-logo">
+
+            <div class="admin-logo-icon">
+                🍖
+            </div>
+
+            <div>
+
+                <h2>
+                    MEAT SHOP
+                </h2>
+
+                <p>
+                    OWNER PANEL
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <nav class="admin-navigation">
+
+            <a
+                href="#"
+                class="active"
+            >
+                📊 Dashboard
+            </a>
+
+            <a href="#orders">
+                🛒 Orders
+            </a>
+
+            <a href="#products">
+                🍗 Products
+            </a>
+
+            <a href="#customers">
+                👥 Customers
+            </a>
+
+        </nav>
+
+
+        <div class="sidebar-footer">
+
+            <span>
+                Owner / Admin
+            </span>
+
+        </div>
+
+    </aside>
+
+
+
+    <!-- =========================
+         MAIN
+    ========================== -->
+
+    <main class="admin-main">
+
+
+        <!-- =========================
+             TOP HEADER
+        ========================== -->
+
+        <header class="admin-header">
+
+            <div>
+
+                <h1>
+                    Owner Dashboard
+                </h1>
+
+                <p>
+                    Manage your meat delivery business
+                </p>
+
+            </div>
+
+
+            <div class="admin-user">
+
+                <div class="admin-avatar">
+                    👤
+                </div>
+
+                <div>
+
+                    <strong>
+                        Owner
+                    </strong>
+
+                    <span>
+                        Admin
+                    </span>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+
+        <!-- =========================
+             STAT CARDS
+        ========================== -->
+
+        <section class="stats-grid">
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon orders-icon">
+                    🛒
+                </div>
+
+                <div>
+
+                    <span>
+                        Total Orders
+                    </span>
+
+                    <strong id="total-orders">
+                        0
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon revenue-icon">
+                    ₹
+                </div>
+
+                <div>
+
+                    <span>
+                        Total Revenue
+                    </span>
+
+                    <strong id="total-revenue">
+                        ₹0
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon pending-icon">
+                    ⏳
+                </div>
+
+                <div>
+
+                    <span>
+                        Pending Orders
+                    </span>
+
+                    <strong id="pending-orders">
+                        0
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon customer-icon">
+                    👥
+                </div>
+
+                <div>
+
+                    <span>
+                        Customers
+                    </span>
+
+                    <strong id="total-customers">
+                        0
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =========================
+             ORDERS
+        ========================== -->
+
+        <section
+            class="dashboard-section"
+            id="orders"
+        >
+
+            <div class="section-header">
+
+                <div>
+
+                    <h2>
+                        Recent Orders
+                    </h2>
+
+                    <p>
+                        View and manage customer orders
+                    </p>
+
+                </div>
+
+
+                <button
+                    id="refresh-orders"
+                    class="refresh-button"
+                    type="button"
+                >
+                    ↻ Refresh
+                </button>
+
+            </div>
+
+
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Order ID
+                            </th>
+
+                            <th>
+                                Customer
+                            </th>
+
+                            <th>
+                                Phone
+                            </th>
+
+                            <th>
+                                Total
+                            </th>
+
+                            <th>
+                                Payment
+                            </th>
+
+                            <th>
+                                Status
+                            </th>
+
+                            <th>
+                                Action
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="orders-table-body">
+
+                        <tr>
+
+                            <td
+                                colspan="7"
+                                class="loading-cell"
+                            >
+                                Loading orders...
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =========================
+             PRODUCTS
+        ========================== -->
+
+        <section
+            class="dashboard-section"
+            id="products"
+        >
+
+            <div class="section-header">
+
+                <div>
+
+                    <h2>
+                        Products
+                    </h2>
+
+                    <p>
+                        Products available in your store
+                    </p>
+
+                </div>
+
+
+                <button
+                    id="refresh-products"
+                    class="refresh-button"
+                    type="button"
+                >
+                    ↻ Refresh
+                </button>
+
+            </div>
+
+
+            <!-- PRODUCTS WILL LOAD FROM SUPABASE -->
+
+            <div
+                id="products-list"
+                class="info-card-grid"
+            >
+
+                <div class="loading-cell">
+                    Loading products...
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =========================
+             CUSTOMERS
+        ========================== -->
+
+        <section
+            class="dashboard-section"
+            id="customers"
+        >
+
+            <div class="section-header">
+
+                <div>
+
+                    <h2>
+                        Customer Information
+                    </h2>
+
+                    <p>
+                        Customer details from recent orders
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div id="customer-list">
+
+                <div class="empty-message">
+                    Customer information will appear here.
+                </div>
+
+            </div>
+
+        </section>
+
+
+    </main>
+
+
+
+    <!-- SUPABASE -->
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+    <!-- ADMIN JAVASCRIPT -->
+
+    <script src="admin.js"></script>
+
+
+</body>
+
+</html>

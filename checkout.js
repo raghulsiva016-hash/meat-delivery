@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", function () {
         cart.forEach(function (item) {
 
             const itemTotal =
-                Number(item.price || 0) * Number(item.quantity || 0);
+                item.price * item.quantity;
 
             subtotal += itemTotal;
 
@@ -290,30 +290,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 "Placing Order...";
 
 
-            /* =========================
-               OPEN WHATSAPP WINDOW EARLY
-               This prevents popup blocking
-            ========================= */
-
-            let whatsappWindow = null;
-
-            try {
-
-                whatsappWindow =
-                    window.open(
-                        "about:blank",
-                        "_blank"
-                    );
-
-            } catch (error) {
-
-                console.log(
-                    "WhatsApp window could not be opened yet."
-                );
-
-            }
-
-
 
             /* =========================
                ORDER DATA
@@ -442,158 +418,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
                 /* =========================
-                   CREATE WHATSAPP MESSAGE
-                ========================= */
-
-                let whatsappMessage =
-                    "🛒 *NEW ORDER - OFFER CHICKEN*";
-
-                whatsappMessage +=
-                    "\n\n";
-
-                whatsappMessage +=
-                    "📦 *Order ID:* " +
-                    backendOrder.orderId;
-
-                whatsappMessage +=
-                    "\n\n";
-
-                whatsappMessage +=
-                    "👤 *Customer Details*";
-
-                whatsappMessage +=
-                    "\nName: " + name;
-
-                whatsappMessage +=
-                    "\nPhone: " + phone;
-
-                whatsappMessage +=
-                    "\nAddress: " + address;
-
-                whatsappMessage +=
-                    "\nCity: " + city;
-
-                whatsappMessage +=
-                    "\nPincode: " + pincode;
-
-                whatsappMessage +=
-                    "\n\n";
-
-                whatsappMessage +=
-                    "🛍️ *Ordered Items*";
-
-                whatsappMessage +=
-                    "\n";
-
-
-                cart.forEach(function (item, index) {
-
-                    const itemTotal =
-                        Number(item.price || 0) *
-                        Number(item.quantity || 0);
-
-                    whatsappMessage +=
-                        "\n" +
-                        (index + 1) +
-                        ". " +
-                        item.name;
-
-                    if (item.weight) {
-
-                        whatsappMessage +=
-                            " (" +
-                            item.weight +
-                            ")";
-
-                    }
-
-                    whatsappMessage +=
-                        " × " +
-                        item.quantity;
-
-                    whatsappMessage +=
-                        " = ₹" +
-                        itemTotal;
-
-                });
-
-
-                whatsappMessage +=
-                    "\n\n";
-
-                whatsappMessage +=
-                    "💰 *Subtotal:* ₹" +
-                    subtotal;
-
-                whatsappMessage +=
-                    "\n🚚 *Delivery:* " +
-                    (
-                        delivery === 0
-                            ? "FREE"
-                            : "₹" + delivery
-                    );
-
-                whatsappMessage +=
-                    "\n💵 *Total:* ₹" +
-                    total;
-
-                whatsappMessage +=
-                    "\n💳 *Payment:* " +
-                    (
-                        payment.value === "cod"
-                            ? "Cash on Delivery"
-                            : "Online Payment"
-                    );
-
-                whatsappMessage +=
-                    "\n\n";
-
-                whatsappMessage +=
-                    "Thank you for ordering from OFFER CHICKEN! ❤️";
-
-
-
-                /* =========================
-                   WHATSAPP URL
-                ========================= */
-
-                const whatsappNumber =
-                    "919384997383";
-
-                const whatsappURL =
-                    "https://wa.me/" +
-                    whatsappNumber +
-                    "?text=" +
-                    encodeURIComponent(
-                        whatsappMessage
-                    );
-
-
-
-                /* =========================
-                   OPEN WHATSAPP
-                ========================= */
-
-                if (
-                    whatsappWindow &&
-                    !whatsappWindow.closed
-                ) {
-
-                    whatsappWindow.location.href =
-                        whatsappURL;
-
-                } else {
-
-                    window.open(
-                        whatsappURL,
-                        "_blank"
-                    );
-
-                }
-
-
-
-                /* =========================
                    CLEAR CART
                 ========================= */
 
@@ -607,14 +431,8 @@ document.addEventListener("DOMContentLoaded", function () {
                    SUCCESS PAGE
                 ========================= */
 
-                setTimeout(function () {
-
-                    window.location.href =
-                        "order-success.html";
-
-                }, 800);
-
-
+                window.location.href =
+                    "order-success.html";
 
             } catch (error) {
 
@@ -622,16 +440,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     "Order submission error:",
                     error
                 );
-
-
-                if (
-                    whatsappWindow &&
-                    !whatsappWindow.closed
-                ) {
-
-                    whatsappWindow.close();
-
-                }
 
 
                 alert(
@@ -651,4 +459,4 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     );
 
-});
+});S
