@@ -1,5 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
 
+    const WHATSAPP_NUMBER = "917558148537";
+
     const API_BASE = (() => {
 
         const configuredBase =
@@ -437,6 +439,32 @@ document.addEventListener("DOMContentLoaded", function () {
                     )
                 );
 
+                const whatsappItems = cart
+                    .map(function (item) {
+                        return `${item.name} (${item.weight}) x ${item.quantity} = ₹${item.price * item.quantity}`;
+                    })
+                    .join("\n");
+
+                const whatsappMessage = [
+                    "New OFFER CHICKEN Order",
+                    `Order number: ${backendOrder.orderId}`,
+                    "",
+                    "Customer details:",
+                    `Name: ${name}`,
+                    `Phone: ${phone}`,
+                    `Address: ${address}`,
+                    `City: ${city}`,
+                    `Pincode: ${pincode}`,
+                    "",
+                    "Items:",
+                    whatsappItems,
+                    "",
+                    `Subtotal: ₹${subtotal}`,
+                    `Delivery: ${delivery === 0 ? "FREE" : "₹" + delivery}`,
+                    `Total: ₹${total}`,
+                    `Payment: ${payment.value === "cod" ? "Cash on Delivery" : "Online Payment"}`
+                ].join("\n");
+
 
 
                 /* =========================
@@ -454,7 +482,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 ========================= */
 
                 window.location.href =
-                    "order-success.html";
+                    `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(whatsappMessage)}`;
 
             } catch (error) {
 
@@ -481,4 +509,4 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     );
 
-});S
+});

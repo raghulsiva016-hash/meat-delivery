@@ -5,11 +5,12 @@
 
     <meta charset="UTF-8">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
 
-    <title>Meat Shop - Owner Dashboard</title>
+    <title>OFFER CHICKEN - Owner Dashboard</title>
 
-    <link rel="stylesheet" href="admin.css">
+    <link rel="stylesheet" href="/admin.css">
 
 </head>
 
@@ -30,7 +31,7 @@
 
             <div>
 
-                <h2>MEAT SHOP</h2>
+                <h2>OFFER CHICKEN</h2>
 
                 <p>OWNER PANEL</p>
 
@@ -280,6 +281,11 @@
                                 Ordered Items
                             </th>
 
+                            <!-- NEW -->
+                            <th>
+                                Order Time
+                            </th>
+
                             <th>
                                 Total
                             </th>
@@ -306,7 +312,7 @@
                         <tr>
 
                             <td
-                                colspan="8"
+                                colspan="9"
                                 class="loading-cell"
                             >
                                 Loading orders...
@@ -779,8 +785,494 @@
          ADMIN JAVASCRIPT
     ========================== -->
 
-    <script src="config.js"></script>
-    <script src="admin.js"></script>
+    <script src="/config.js"></script>
+
+    <script src="/admin.js"></script>
+
+
+
+    <!-- =====================================================
+         ORDER DETAILS + ORDER TIME
+    ====================================================== -->
+
+    <script>
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            function () {
+
+                /*
+                 * Wait for admin.js to load the orders.
+                 */
+                setTimeout(
+                    loadOrderDetails,
+                    800
+                );
+
+            }
+        );
+
+
+        async function loadOrderDetails() {
+
+            try {
+
+                const response =
+                    await fetch("/api/orders");
+
+
+                if (!response.ok) {
+
+                    console.error(
+                        "Unable to fetch orders."
+                    );
+
+                    return;
+
+                }
+
+
+                const result =
+                    await response.json();
+
+
+                /*
+                 * Support both:
+                 *
+                 * { orders: [...] }
+                 *
+                 * and
+                 *
+                 * [...]
+                 */
+
+                let orders = [];
+
+                if (Array.isArray(result)) {
+
+                    orders = result;
+
+                } else if (
+                    Array.isArray(result.orders)
+                ) {
+
+                    orders = result.orders;
+
+                } else if (
+                    Array.isArray(result.data)
+                ) {
+
+                    orders = result.data;
+
+                }
+
+
+                if (!orders.length) {
+
+                    return;
+
+                }
+
+
+                const tableBody =
+                    document.getElementById(
+                        "orders-table-body"
+                    );
+
+
+                if (!tableBody) {
+
+                    return;
+
+                }
+
+
+                /*
+                 * Add Order Time header
+                 * only if it doesn't already exist.
+                 */
+
+                const table =
+                    tableBody.closest("table");
+
+
+                if (!table) {
+
+                    return;
+
+                }
+
+
+                const headerRow =
+                    table.querySelector("thead tr");
+
+
+                if (headerRow) {
+
+                    const existingHeaders =
+                        Array.from(
+                            headerRow.children
+                        );
+
+
+                    const hasTimeHeader =
+                        existingHeaders.some(
+                            function (header) {
+
+                                return header
+                                    .textContent
+                                    .trim()
+                                    .toLowerCase()
+                                    .includes(
+                                        "order time"
+                                    );
+
+                            }
+                        );
+
+
+                    if (!hasTimeHeader) {
+
+                        const timeHeader =
+                            document.createElement(
+                                "th"
+                            );
+
+                        timeHeader.textContent =
+                            "Order Time";
+
+
+                        /*
+                         * Put Order Time before Total.
+                         */
+
+                        const totalHeader =
+                            existingHeaders.find(
+                                function (header) {
+
+                                    return header
+                                        .textContent
+                                        .trim()
+                                        .toLowerCase()
+                                        === "total";
+
+                                }
+                            );
+
+
+                        if (totalHeader) {
+
+                            headerRow.insertBefore(
+                                timeHeader,
+                                totalHeader
+                            );
+
+                        } else {
+
+                            headerRow.appendChild(
+                                timeHeader
+                            );
+
+                        }
+
+                    }
+
+                }
+
+
+
+                /*
+                 * Update every order row.
+                 */
+
+                const rows =
+                    Array.from(
+                        tableBody.querySelectorAll(
+                            "tr"
+                        )
+                    );
+
+
+                rows.forEach(
+                    function (row) {
+
+                        const cells =
+                            Array.from(
+                                row.children
+                            );
+
+
+                        if (
+                            cells.length === 0 ||
+                            cells.length < 4
+                        ) {
+
+                            return;
+
+                        }
+
+
+                        /*
+                         * Order ID is the first cell.
+                         */
+
+                        const displayedOrderId =
+                            cells[0]
+                                .textContent
+                                .trim();
+
+
+                        if (!displayedOrderId) {
+
+                            return;
+
+                        }
+
+
+                        /*
+                         * Find matching backend order.
+                         */
+
+                        const order =
+                            orders.find(
+                                function (item) {
+
+                                    const id =
+                                        item.orderId ||
+                                        item.orderNumber ||
+                                        item.id ||
+                                        "";
+
+                                    return String(id)
+                                        .trim()
+                                        === displayedOrderId;
+
+                                }
+                            );
+
+
+                        if (!order) {
+
+                            return;
+
+                        }
+
+
+
+                        /* =================================================
+                           ORDERED ITEMS
+                        ================================================= */
+
+                        const itemsCell =
+                            cells[3];
+
+
+                        if (
+                            itemsCell &&
+                            Array.isArray(order.items)
+                        ) {
+
+                            if (
+                                order.items.length > 0
+                            ) {
+
+                                itemsCell.innerHTML =
+                                    "";
+
+
+                                order.items.forEach(
+                                    function (item) {
+
+                                        const itemDiv =
+                                            document.createElement(
+                                                "div"
+                                            );
+
+
+                                        itemDiv.style.marginBottom =
+                                            "5px";
+
+
+                                        itemDiv.style.fontSize =
+                                            "13px";
+
+
+                                        const name =
+                                            item.name ||
+                                            "Unknown Item";
+
+
+                                        const quantity =
+                                            Number(
+                                                item.quantity ||
+                                                1
+                                            );
+
+
+                                        const weight =
+                                            item.weight
+                                                ? " (" +
+                                                  item.weight +
+                                                  ")"
+                                                : "";
+
+
+                                        itemDiv.textContent =
+                                            "🍗 " +
+                                            name +
+                                            weight +
+                                            " × " +
+                                            quantity;
+
+
+                                        itemsCell.appendChild(
+                                            itemDiv
+                                        );
+
+                                    }
+                                );
+
+                            }
+
+                        }
+
+
+
+                        /* =================================================
+                           ORDER TIME
+                        ================================================= */
+
+                        const dateValue =
+                            order.createdAt ||
+                            order.orderDate ||
+                            order.created_at;
+
+
+                        if (!dateValue) {
+
+                            return;
+
+                        }
+
+
+                        const date =
+                            new Date(
+                                dateValue
+                            );
+
+
+                        if (
+                            isNaN(
+                                date.getTime()
+                            )
+                        ) {
+
+                            return;
+
+                        }
+
+
+                        const formattedTime =
+                            date.toLocaleString(
+                                "en-IN",
+                                {
+                                    day: "2-digit",
+                                    month: "short",
+                                    year: "numeric",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                    hour12: true
+                                }
+                            );
+
+
+                        /*
+                         * Check if this row already
+                         * has an Order Time cell.
+                         */
+
+                        let timeCell =
+                            row.querySelector(
+                                ".order-time-cell"
+                            );
+
+
+                        if (!timeCell) {
+
+                            timeCell =
+                                document.createElement(
+                                    "td"
+                                );
+
+                            timeCell.className =
+                                "order-time-cell";
+
+
+                            /*
+                             * Insert before Total.
+                             *
+                             * Original structure:
+                             *
+                             * ID
+                             * Customer
+                             * Phone
+                             * Items
+                             * Total
+                             * Payment
+                             * Status
+                             * Action
+                             */
+
+                            const totalCell =
+                                cells[4];
+
+
+                            if (totalCell) {
+
+                                row.insertBefore(
+                                    timeCell,
+                                    totalCell
+                                );
+
+                            } else {
+
+                                row.appendChild(
+                                    timeCell
+                                );
+
+                            }
+
+                        }
+
+
+                        timeCell.innerHTML = `
+                            <span
+                                style="
+                                    display:block;
+                                    white-space:nowrap;
+                                    font-size:13px;
+                                "
+                            >
+                                🕐 ${formattedTime}
+                            </span>
+                        `;
+
+                    }
+                );
+
+
+            } catch (error) {
+
+                console.error(
+                    "Order details error:",
+                    error
+                );
+
+            }
+
+        }
+
+    </script>
 
 
 </body>

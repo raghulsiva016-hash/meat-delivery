@@ -1,10 +1,12 @@
 const express = require("express");
 const cors = require("cors");
+const path = require("path");
 
 const orderRoutes = require("./routes/orderRoutes");
 const productRoutes = require("./routes/productRoutes");
 
 const app = express();
+const rootDir = path.join(__dirname, "..");
 
 const PORT = 5000;
 
@@ -17,6 +19,8 @@ app.use(cors());
 
 app.use(express.json());
 
+app.use(express.static(rootDir));
+
 
 /* =========================
    HOME
@@ -24,10 +28,20 @@ app.use(express.json());
 
 app.get("/", (req, res) => {
 
-    res.json({
-        message: "Meat Shop Backend is running successfully!"
-    });
+    res.sendFile(path.join(rootDir, "index.html"));
 
+});
+
+app.get("/admin", (req, res) => {
+    res.redirect("/admin/dashboard");
+});
+
+app.get("/admin/dashboard", (req, res) => {
+    res.sendFile(path.join(rootDir, "admin.html"));
+});
+
+app.get("/admin-login", (req, res) => {
+    res.sendFile(path.join(rootDir, "admin-login.html"));
 });
 
 
@@ -55,10 +69,12 @@ app.use(
    START SERVER
 ========================= */
 
-app.listen(PORT, () => {
+if (require.main === module) {
+    app.listen(PORT, () => {
+        console.log(
+            `Server running at http://localhost:${PORT}`
+        );
+    });
+}
 
-    console.log(
-        `Server running at http://localhost:${PORT}`
-    );
-
-});
+module.exports = app;

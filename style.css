@@ -77,7 +77,16 @@ button {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 27px;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: #ffffff;
+}
+
+.logo-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
 }
 
 .logo-text {
@@ -296,7 +305,7 @@ button {
 ========================= */
 
 .hero-image-area {
-    width: 47%;
+    width: 50%;
     position: relative;
     display: flex;
     align-items: center;
@@ -319,12 +328,15 @@ button {
 .hero-meat-image {
     position: relative;
     width: 650px;
+    max-width: 100%;
+    margin-left: 0;
     z-index: 1;
-    margin-left: -45px;
+    overflow: hidden;
 }
 
 .hero-meat-image img {
     width: 100%;
+    height: auto;
     display: block;
     object-fit: contain;
 }

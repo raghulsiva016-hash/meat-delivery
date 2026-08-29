@@ -24,8 +24,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
     })();
 
-    const API_URL = API_BASE ? `${API_BASE}/api/orders` : "/api/orders";
-    const PRODUCTS_API_URL = API_BASE ? `${API_BASE}/api/products` : "/api/products";
+    const API_URL =
+        API_BASE
+            ? `${API_BASE}/api/orders`
+            : "/api/orders";
+
+    const PRODUCTS_API_URL =
+        API_BASE
+            ? `${API_BASE}/api/products`
+            : "/api/products";
 
 
     /* =========================================================
@@ -80,6 +87,110 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     /* =========================================================
+       FORMAT ORDER DATE / TIME
+    ========================================================= */
+
+    function formatOrderDateTime(order) {
+
+        const dateValue =
+            order.created_at ||
+            order.createdAt ||
+            order.order_date ||
+            order.order_time;
+
+        if (!dateValue) {
+            return "—";
+        }
+
+        const date = new Date(dateValue);
+
+        if (isNaN(date.getTime())) {
+            return escapeHTML(dateValue);
+        }
+
+        return date.toLocaleString("en-IN", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true
+        });
+    }
+
+
+    /* =========================================================
+       MAKE SURE TABLE HEADERS ARE CORRECT
+    ========================================================= */
+
+    function setupOrderTableHeaders() {
+
+        const table =
+            ordersTableBody
+                ? ordersTableBody.closest("table")
+                : null;
+
+        if (!table) {
+            return;
+        }
+
+        const thead =
+            table.querySelector("thead");
+
+        if (!thead) {
+            return;
+        }
+
+        const headerRow =
+            thead.querySelector("tr");
+
+        if (!headerRow) {
+            return;
+        }
+
+        headerRow.innerHTML = `
+
+            <th>
+                Order ID
+            </th>
+
+            <th>
+                Date & Time
+            </th>
+
+            <th>
+                Customer
+            </th>
+
+            <th>
+                Phone
+            </th>
+
+            <th>
+                Ordered Items
+            </th>
+
+            <th>
+                Total
+            </th>
+
+            <th>
+                Payment
+            </th>
+
+            <th>
+                Status
+            </th>
+
+            <th>
+                Action
+            </th>
+
+        `;
+    }
+
+
+    /* =========================================================
        LOAD ORDERS
     ========================================================= */
 
@@ -88,17 +199,27 @@ document.addEventListener("DOMContentLoaded", function () {
         if (ordersTableBody) {
 
             ordersTableBody.innerHTML = `
+
                 <tr>
-                    <td colspan="8" class="loading-cell">
+
+                    <td
+                        colspan="9"
+                        class="loading-cell"
+                    >
                         Loading orders...
                     </td>
+
                 </tr>
+
             `;
         }
 
         try {
 
-            console.log("Fetching orders:", API_URL);
+            console.log(
+                "Fetching orders:",
+                API_URL
+            );
 
             const response =
                 await fetch(API_URL);
@@ -114,7 +235,10 @@ document.addEventListener("DOMContentLoaded", function () {
             const result =
                 await response.json();
 
-            console.log("Orders response:", result);
+            console.log(
+                "Orders response:",
+                result
+            );
 
             if (!result.success) {
 
@@ -128,6 +252,28 @@ document.addEventListener("DOMContentLoaded", function () {
                 Array.isArray(result.orders)
                     ? result.orders
                     : [];
+
+
+            /* Newest orders first */
+
+            orders.sort(function (a, b) {
+
+                const dateA =
+                    new Date(
+                        a.created_at || 0
+                    ).getTime();
+
+                const dateB =
+                    new Date(
+                        b.created_at || 0
+                    ).getTime();
+
+                return dateB - dateA;
+
+            });
+
+
+            setupOrderTableHeaders();
 
             renderOrders(orders);
 
@@ -145,19 +291,107 @@ document.addEventListener("DOMContentLoaded", function () {
             if (ordersTableBody) {
 
                 ordersTableBody.innerHTML = `
+
                     <tr>
-                        <td colspan="8" class="empty-cell">
+
+                        <td
+                            colspan="9"
+                            class="empty-cell"
+                        >
+
                             Unable to load orders.
+
                             <br>
+
                             <small>
-                                Check that the backend server is running.
+                                ${escapeHTML(
+                                    error.message ||
+                                    "Check that the backend server is running."
+                                )}
                             </small>
+
                         </td>
+
                     </tr>
+
                 `;
             }
 
         }
+    }
+
+
+    /* =========================================================
+       RENDER ORDER ITEMS
+    ========================================================= */
+
+    function renderOrderItems(order) {
+
+        if (
+            !Array.isArray(order.items) ||
+            order.items.length === 0
+        ) {
+
+            return `
+                <span style="
+                    color:#888;
+                ">
+                    No items
+                </span>
+            `;
+
+        }
+
+
+        return order.items.map(function (item) {
+
+            const name =
+                item.name ||
+                item.product_name ||
+                item.title ||
+                "Unknown Product";
+
+
+            const quantity =
+                Number(
+                    item.quantity ||
+                    item.qty ||
+                    1
+                );
+
+
+            const weight =
+                item.weight
+                    ? ` (${escapeHTML(item.weight)})`
+                    : "";
+
+
+            return `
+
+                <div style="
+                    margin-bottom:7px;
+                    line-height:1.45;
+                ">
+
+                    <strong>
+                        ${escapeHTML(name)}
+                    </strong>
+
+                    ${weight}
+
+                    <span style="
+                        color:#d71920;
+                        font-weight:600;
+                    ">
+                        × ${quantity}
+                    </span>
+
+                </div>
+
+            `;
+
+        }).join("");
+
     }
 
 
@@ -173,14 +407,25 @@ document.addEventListener("DOMContentLoaded", function () {
 
         ordersTableBody.innerHTML = "";
 
-        if (!orders || orders.length === 0) {
+
+        if (
+            !orders ||
+            orders.length === 0
+        ) {
 
             ordersTableBody.innerHTML = `
+
                 <tr>
-                    <td colspan="8" class="empty-cell">
+
+                    <td
+                        colspan="9"
+                        class="empty-cell"
+                    >
                         No orders found.
                     </td>
+
                 </tr>
+
             `;
 
             return;
@@ -194,7 +439,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
             const status =
-                order.status || "Order Placed";
+                order.status ||
+                "Order Placed";
 
 
             const payment =
@@ -203,112 +449,139 @@ document.addEventListener("DOMContentLoaded", function () {
                     : "Online Payment";
 
 
-            /* =================================================
-               ORDER ITEMS
-            ================================================= */
-
-            let itemsHTML = "—";
+            const dateTime =
+                formatOrderDateTime(order);
 
 
-            if (
-                Array.isArray(order.items) &&
-                order.items.length > 0
-            ) {
+            const itemsHTML =
+                renderOrderItems(order);
 
-                itemsHTML =
-                    order.items.map(function (item) {
-
-                        const name =
-                            item.name ||
-                            item.product_name ||
-                            item.title ||
-                            "Unknown Product";
-
-
-                        const quantity =
-                            item.quantity ||
-                            item.qty ||
-                            1;
-
-
-                        const weight =
-                            item.weight
-                                ? ` (${escapeHTML(item.weight)})`
-                                : "";
-
-
-                        return `
-                            <div style="
-                                margin-bottom:6px;
-                                line-height:1.4;
-                            ">
-                                <strong>
-                                    ${escapeHTML(name)}
-                                </strong>
-                                ${weight}
-                                × ${quantity}
-                            </div>
-                        `;
-
-                    }).join("");
-            }
-
-
-            /* =================================================
-               ORDER ROW
-            ================================================= */
 
             row.innerHTML = `
 
+                <!-- ORDER ID -->
+
                 <td>
+
                     <strong>
-                        ${escapeHTML(order.order_id || "—")}
+                        ${escapeHTML(
+                            order.order_id ||
+                            "—"
+                        )}
                     </strong>
+
                 </td>
 
+
+                <!-- DATE & TIME -->
 
                 <td>
-                    ${escapeHTML(order.customer_name || "—")}
+
+                    <div style="
+                        white-space:nowrap;
+                        font-size:13px;
+                        line-height:1.4;
+                    ">
+
+                        <strong>
+                            ${dateTime}
+                        </strong>
+
+                    </div>
+
                 </td>
 
+
+                <!-- CUSTOMER -->
 
                 <td>
-                    ${escapeHTML(order.customer_phone || "—")}
+
+                    ${escapeHTML(
+                        order.customer_name ||
+                        "—"
+                    )}
+
                 </td>
 
+
+                <!-- PHONE -->
 
                 <td>
-                    ${itemsHTML}
+
+                    ${escapeHTML(
+                        order.customer_phone ||
+                        "—"
+                    )}
+
                 </td>
 
+
+                <!-- ORDERED ITEMS -->
+
+                <td>
+
+                    <div style="
+                        min-width:190px;
+                    ">
+
+                        ${itemsHTML}
+
+                    </div>
+
+                </td>
+
+
+                <!-- TOTAL -->
 
                 <td class="order-total">
-                    ₹${Number(order.total || 0).toFixed(0)}
+
+                    <strong>
+                        ₹${Number(
+                            order.total || 0
+                        ).toFixed(0)}
+                    </strong>
+
                 </td>
 
 
+                <!-- PAYMENT -->
+
                 <td>
+
                     ${escapeHTML(payment)}
+
                 </td>
 
+
+                <!-- STATUS -->
 
                 <td>
+
                     <span class="order-status">
+
                         ${escapeHTML(status)}
+
                     </span>
+
                 </td>
 
+
+                <!-- ACTION -->
 
                 <td>
 
                     <select
                         class="status-select"
-                        data-order-id="${order.id}"
+                        data-order-id="${escapeHTML(
+                            order.id
+                        )}"
                     >
 
                         <option
                             value="Order Placed"
-                            ${status === "Order Placed" ? "selected" : ""}
+                            ${status === "Order Placed"
+                                ? "selected"
+                                : ""}
                         >
                             Order Placed
                         </option>
@@ -316,7 +589,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
                         <option
                             value="Confirmed"
-                            ${status === "Confirmed" ? "selected" : ""}
+                            ${status === "Confirmed"
+                                ? "selected"
+                                : ""}
                         >
                             Confirmed
                         </option>
@@ -324,7 +599,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
                         <option
                             value="Preparing"
-                            ${status === "Preparing" ? "selected" : ""}
+                            ${status === "Preparing"
+                                ? "selected"
+                                : ""}
                         >
                             Preparing
                         </option>
@@ -332,7 +609,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
                         <option
                             value="Out for Delivery"
-                            ${status === "Out for Delivery" ? "selected" : ""}
+                            ${status === "Out for Delivery"
+                                ? "selected"
+                                : ""}
                         >
                             Out for Delivery
                         </option>
@@ -340,7 +619,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
                         <option
                             value="Delivered"
-                            ${status === "Delivered" ? "selected" : ""}
+                            ${status === "Delivered"
+                                ? "selected"
+                                : ""}
                         >
                             Delivered
                         </option>
@@ -379,7 +660,9 @@ document.addEventListener("DOMContentLoaded", function () {
         orders.forEach(function (order) {
 
             revenue +=
-                Number(order.total || 0);
+                Number(
+                    order.total || 0
+                );
 
 
             if (
@@ -415,7 +698,8 @@ document.addEventListener("DOMContentLoaded", function () {
         if (totalRevenue) {
 
             totalRevenue.textContent =
-                "₹" + revenue.toFixed(0);
+                "₹" +
+                revenue.toFixed(0);
 
         }
 
@@ -457,9 +741,11 @@ document.addEventListener("DOMContentLoaded", function () {
         ) {
 
             customerList.innerHTML = `
+
                 <div class="empty-message">
                     No customer information available.
                 </div>
+
             `;
 
             return;
@@ -496,9 +782,11 @@ document.addEventListener("DOMContentLoaded", function () {
         if (customerMap.size === 0) {
 
             customerList.innerHTML = `
+
                 <div class="empty-message">
                     No customer information available.
                 </div>
+
             `;
 
             return;
@@ -697,9 +985,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
         productsList.innerHTML = `
+
             <div class="loading-cell">
                 Loading products...
             </div>
+
         `;
 
 
@@ -765,13 +1055,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
             productsList.innerHTML = `
+
                 <div class="empty-message">
+
                     Unable to load products.
+
                     <br>
+
                     <small>
                         Check that the backend server is running.
                     </small>
+
                 </div>
+
             `;
 
         }
@@ -799,9 +1095,11 @@ document.addEventListener("DOMContentLoaded", function () {
         ) {
 
             productsList.innerHTML = `
+
                 <div class="empty-message">
                     No products found.
                 </div>
+
             `;
 
             return;
@@ -845,6 +1143,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
                     imageHTML = `
+
                         <img
                             src="${escapeHTML(imagePath)}"
                             alt="${escapeHTML(
@@ -863,11 +1162,13 @@ document.addEventListener("DOMContentLoaded", function () {
                                 this.style.display='none';
                             "
                         >
+
                     `;
 
                 } else {
 
                     imageHTML = `
+
                         <div style="
                             height:150px;
                             display:flex;
@@ -880,6 +1181,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         ">
                             🍖
                         </div>
+
                     `;
 
                 }
@@ -1069,13 +1371,6 @@ document.addEventListener("DOMContentLoaded", function () {
                             return;
                         }
 
-
-                        /*
-                           DELETE endpoint is not currently
-                           included in your productRoutes.js.
-
-                           So we do NOT send a fake request.
-                        */
 
                         alert(
                             "Delete is not enabled yet. We can add it next."
@@ -1960,6 +2255,8 @@ document.addEventListener("DOMContentLoaded", function () {
     /* =========================================================
        INITIALIZE
     ========================================================= */
+
+    setupOrderTableHeaders();
 
     createProductModal();
 

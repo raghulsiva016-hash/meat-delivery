@@ -5,11 +5,12 @@
 
     <meta charset="UTF-8">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
 
-    <title>Meat Shop - Owner Dashboard</title>
+    <title>OFFER CHICKEN - Owner Dashboard</title>
 
-    <link rel="stylesheet" href="admin.css">
+    <link rel="stylesheet" href="/admin.css">
 
 </head>
 
@@ -30,13 +31,9 @@
 
             <div>
 
-                <h2>
-                    MEAT SHOP
-                </h2>
+                <h2>OFFER CHICKEN</h2>
 
-                <p>
-                    OWNER PANEL
-                </p>
+                <p>OWNER PANEL</p>
 
             </div>
 
@@ -45,10 +42,7 @@
 
         <nav class="admin-navigation">
 
-            <a
-                href="#"
-                class="active"
-            >
+            <a href="#" class="active">
                 📊 Dashboard
             </a>
 
@@ -80,14 +74,14 @@
 
 
     <!-- =========================
-         MAIN
+         MAIN CONTENT
     ========================== -->
 
     <main class="admin-main">
 
 
         <!-- =========================
-             TOP HEADER
+             HEADER
         ========================== -->
 
         <header class="admin-header">
@@ -130,7 +124,7 @@
 
 
         <!-- =========================
-             STAT CARDS
+             DASHBOARD STATS
         ========================== -->
 
         <section class="stats-grid">
@@ -222,6 +216,7 @@
 
             </div>
 
+
         </section>
 
 
@@ -261,9 +256,14 @@
             </div>
 
 
+
             <div class="table-container">
 
                 <table>
+
+                    <!-- =================================================
+                         ORDER TABLE HEADER
+                    ================================================== -->
 
                     <thead>
 
@@ -274,11 +274,19 @@
                             </th>
 
                             <th>
+                                Date &amp; Time
+                            </th>
+
+                            <th>
                                 Customer
                             </th>
 
                             <th>
                                 Phone
+                            </th>
+
+                            <th>
+                                Ordered Items
                             </th>
 
                             <th>
@@ -307,7 +315,7 @@
                         <tr>
 
                             <td
-                                colspan="7"
+                                colspan="9"
                                 class="loading-cell"
                             >
                                 Loading orders...
@@ -349,18 +357,36 @@
                 </div>
 
 
-                <button
-                    id="refresh-products"
-                    class="refresh-button"
-                    type="button"
+                <div
+                    style="
+                        display:flex;
+                        gap:10px;
+                        align-items:center;
+                    "
                 >
-                    ↻ Refresh
-                </button>
+
+                    <button
+                        id="add-product-button"
+                        class="refresh-button"
+                        type="button"
+                    >
+                        ＋ Add Product
+                    </button>
+
+
+                    <button
+                        id="refresh-products"
+                        class="refresh-button"
+                        type="button"
+                    >
+                        ↻ Refresh
+                    </button>
+
+                </div>
 
             </div>
 
 
-            <!-- PRODUCTS WILL LOAD FROM SUPABASE -->
 
             <div
                 id="products-list"
@@ -418,14 +444,359 @@
 
 
 
-    <!-- SUPABASE -->
+    <!-- =========================
+         ADD / EDIT PRODUCT MODAL
+    ========================== -->
+
+    <div
+        id="product-modal"
+        style="
+            display:none;
+            position:fixed;
+            inset:0;
+            background:rgba(0,0,0,0.55);
+            z-index:9999;
+            align-items:center;
+            justify-content:center;
+            padding:20px;
+        "
+    >
+
+        <div
+            style="
+                background:white;
+                width:100%;
+                max-width:520px;
+                border-radius:16px;
+                padding:25px;
+                box-shadow:0 20px 60px rgba(0,0,0,0.25);
+            "
+        >
+
+            <div
+                style="
+                    display:flex;
+                    justify-content:space-between;
+                    align-items:center;
+                    margin-bottom:20px;
+                "
+            >
+
+                <h2
+                    id="product-modal-title"
+                    style="margin:0;"
+                >
+                    Add Product
+                </h2>
+
+
+                <button
+                    id="close-product-modal"
+                    type="button"
+                    style="
+                        border:none;
+                        background:#f1f1f1;
+                        width:36px;
+                        height:36px;
+                        border-radius:50%;
+                        font-size:20px;
+                        cursor:pointer;
+                    "
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+
+            <form id="product-form">
+
+
+                <!-- PRODUCT NAME -->
+
+                <div style="margin-bottom:15px;">
+
+                    <label
+                        for="product-name"
+                        style="
+                            display:block;
+                            font-weight:600;
+                            margin-bottom:6px;
+                        "
+                    >
+                        Product Name
+                    </label>
+
+                    <input
+                        type="text"
+                        id="product-name"
+                        placeholder="Example: Chicken Breast"
+                        required
+                        style="
+                            width:100%;
+                            padding:11px;
+                            border:1px solid #ddd;
+                            border-radius:8px;
+                            box-sizing:border-box;
+                        "
+                    >
+
+                </div>
+
+
+
+                <!-- CATEGORY -->
+
+                <div style="margin-bottom:15px;">
+
+                    <label
+                        for="product-category"
+                        style="
+                            display:block;
+                            font-weight:600;
+                            margin-bottom:6px;
+                        "
+                    >
+                        Category
+                    </label>
+
+                    <select
+                        id="product-category"
+                        required
+                        style="
+                            width:100%;
+                            padding:11px;
+                            border:1px solid #ddd;
+                            border-radius:8px;
+                            box-sizing:border-box;
+                        "
+                    >
+
+                        <option value="">
+                            Select Category
+                        </option>
+
+                        <option value="chicken">
+                            Chicken
+                        </option>
+
+                        <option value="mutton">
+                            Mutton
+                        </option>
+
+                        <option value="eggs">
+                            Eggs
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+
+                <!-- PRICE -->
+
+                <div style="margin-bottom:15px;">
+
+                    <label
+                        for="product-price"
+                        style="
+                            display:block;
+                            font-weight:600;
+                            margin-bottom:6px;
+                        "
+                    >
+                        Price
+                    </label>
+
+                    <input
+                        type="number"
+                        id="product-price"
+                        min="0"
+                        step="1"
+                        placeholder="Example: 320"
+                        required
+                        style="
+                            width:100%;
+                            padding:11px;
+                            border:1px solid #ddd;
+                            border-radius:8px;
+                            box-sizing:border-box;
+                        "
+                    >
+
+                </div>
+
+
+
+                <!-- IMAGE -->
+
+                <div style="margin-bottom:15px;">
+
+                    <label
+                        for="product-image"
+                        style="
+                            display:block;
+                            font-weight:600;
+                            margin-bottom:6px;
+                        "
+                    >
+                        Image Path
+                    </label>
+
+                    <input
+                        type="text"
+                        id="product-image"
+                        placeholder="Example: images/chicken-breast.jpg"
+                        style="
+                            width:100%;
+                            padding:11px;
+                            border:1px solid #ddd;
+                            border-radius:8px;
+                            box-sizing:border-box;
+                        "
+                    >
+
+                </div>
+
+
+
+                <!-- DESCRIPTION -->
+
+                <div style="margin-bottom:15px;">
+
+                    <label
+                        for="product-description"
+                        style="
+                            display:block;
+                            font-weight:600;
+                            margin-bottom:6px;
+                        "
+                    >
+                        Description
+                    </label>
+
+                    <textarea
+                        id="product-description"
+                        rows="3"
+                        placeholder="Product description"
+                        style="
+                            width:100%;
+                            padding:11px;
+                            border:1px solid #ddd;
+                            border-radius:8px;
+                            box-sizing:border-box;
+                            resize:vertical;
+                        "
+                    ></textarea>
+
+                </div>
+
+
+
+                <!-- AVAILABLE -->
+
+                <div style="margin-bottom:20px;">
+
+                    <label
+                        style="
+                            display:flex;
+                            align-items:center;
+                            gap:8px;
+                            cursor:pointer;
+                        "
+                    >
+
+                        <input
+                            type="checkbox"
+                            id="product-available"
+                            checked
+                        >
+
+                        <span>
+                            Product is available
+                        </span>
+
+                    </label>
+
+                </div>
+
+
+
+                <!-- BUTTONS -->
+
+                <div
+                    style="
+                        display:flex;
+                        gap:10px;
+                        justify-content:flex-end;
+                    "
+                >
+
+                    <button
+                        type="button"
+                        id="cancel-product-button"
+                        style="
+                            padding:11px 20px;
+                            border:1px solid #ddd;
+                            background:#f5f5f5;
+                            border-radius:8px;
+                            cursor:pointer;
+                        "
+                    >
+                        Cancel
+                    </button>
+
+
+                    <button
+                        type="submit"
+                        id="save-product-button"
+                        style="
+                            padding:11px 20px;
+                            border:none;
+                            background:#d71920;
+                            color:white;
+                            border-radius:8px;
+                            cursor:pointer;
+                            font-weight:600;
+                        "
+                    >
+                        Save Product
+                    </button>
+
+                </div>
+
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =========================
+         SUPABASE LIBRARY
+    ========================== -->
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 
-    <!-- ADMIN JAVASCRIPT -->
 
-    <script src="admin.js"></script>
+    <!-- =========================
+         CONFIG
+    ========================== -->
+
+    <script src="/config.js"></script>
+
+
+
+    <!-- =========================
+         ADMIN JAVASCRIPT
+    ========================== -->
+
+    <script src="/admin.js"></script>
 
 
 </body>

@@ -1,1 +1,1 @@
-window.MEATSHOP_API_URL = "https://your-backend-url";
+window.MEATSHOP_API_URL = "";
